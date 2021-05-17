@@ -62,7 +62,7 @@ public class Minesweeper implements ActionListener{
                     if (y > 0 && counts[x][y-1] == MINE){//Up
                         neighborcount++;//Add 1 to mine count
                     }
-                    if (x < counts.length-1 && y < counts[0].length-1 && counts[x+1][y-1] == MINE){//upper right
+                    if (x < counts.length-1 && y > 0 && counts[x+1][y-1] == MINE){//upper right
                         neighborcount++;//Add 1 to mine count
                     }
                     if (x > 0 && counts[x-1][y] == MINE){//left
@@ -103,6 +103,88 @@ public class Minesweeper implements ActionListener{
         }
     }
   
+    public void clearZeros(ArrayList<Integer> toClear){
+        if (toClear.size() == 0){
+            return;
+        }
+        else{
+            int x = toClear.get(0)/100;
+            int y = toClear.get(0)%100;
+            toClear.remove(0);
+            if (x > 0 && y > 0 && buttons[x-1][y-1].isEnabled()){//upper left
+                buttons[x-1][y-1].setText(counts[x-1][y-1] + "");
+                buttons[x-1][y-1].setEnabled(false);
+                if (counts[x-1][y-1] == 0){
+                    toClear.add((x-1) * 100 + (y-1));
+                }
+            }
+            if (y > 0 && buttons[x][y-1].isEnabled()){
+                buttons[x][y-1].setText(counts[x][y-1] + "");
+                buttons[x][y-1].setEnabled(false);
+                if (counts[x][y-1] == 0){
+                    toClear.add(x * 100 + (y-1));
+                }
+            }
+            if (x < counts.length - 1 && y > 0 && buttons[x+1][y-1].isEnabled()){//upper right
+                buttons[x+1][y-1].setText(counts[x+1][y-1] + "");
+                buttons[x+1][y-1].setEnabled(false);
+                if (counts[x+1][y-1] == 0){
+                    toClear.add((x+1) * 100 + (y-1));
+                }
+            }
+            if (x > 0 && buttons[x-1][y].isEnabled()){//left
+                buttons[x-1][y].setText(counts[x-1][y] + "");
+                buttons[x-1][y].setEnabled(false);
+                if (counts[x-1][y] == 0){
+                    toClear.add((x-1) * 100 + y);
+                }
+            }
+            if (x < counts.length - 1 && buttons[x+1][y].isEnabled()){//right
+                buttons[x+1][y].setText(counts[x+1][y] + "");
+                buttons[x+1][y].setEnabled(false);
+                if (counts[x+1][y] == 0){
+                    toClear.add((x+1) * 100 + y);
+                }
+            }
+            if (x > 0 && y < counts[0].length - 1 && buttons[x-1][y+1].isEnabled()){//bottom left
+                buttons[x-1][y+1].setText(counts[x-1][y+1] + "");
+                buttons[x-1][y+1].setEnabled(false);
+                if (counts[x-1][y+1] == 0){
+                    toClear.add((x-1) * 100 + (y+1));
+                }
+            }
+            if (y < counts[0].length - 1 && buttons[x][y+1].isEnabled()){//bottom
+                buttons[x][y+1].setText(counts[x][y+1] + "");
+                buttons[x][y+1].setEnabled(false);
+                if (counts[x][y+1] == 0){
+                    toClear.add(x * 100 + (y+1));
+                }
+            }
+            if (x < counts.length - 1 && y < counts[0].length - 1 && buttons[x+1][y+1].isEnabled()){
+                buttons[x+1][y+1].setText(counts[x+1][y+1] + "");
+                buttons[x+1][y+1].setEnabled(false);
+                if (counts[x+1][y+1] == 0){
+                    toClear.add((x+1) * 100 + (y+1));
+                }
+            }
+        }
+        clearZeros(toClear);
+    }
+  
+    public void checkWin(){
+        boolean won = false;
+        for (int x = 0; x < counts.length; x++){
+            for (int y = 0; y < counts[0].length; y++){
+                if (counts[x][y] != MINE && buttons[x][y].isEnabled() == true){
+                    won = false;
+                }
+            }
+        }
+        if (won == true){
+            JOptionPane.showMessageDialog(frame, "You Win!");
+        }
+    }
+  
     @Override
     public void actionPerformed(ActionEvent event){
         if (event.getSource().equals(reset)){
@@ -123,9 +205,18 @@ public class Minesweeper implements ActionListener{
                             buttons[x][y].setText("X");
                             lostGame();
                         }
+                        else if (counts[x][y] == 0){
+                            buttons[x][y].setText(counts[x][y] + "");
+                            buttons[x][y].setEnabled(false);
+                            ArrayList<Integer> toClear = new ArrayList<Integer>();
+                            toClear.add(x*100+y);
+                            clearZeros(toClear);
+                            checkWin();
+                        }
                         else{
                             buttons[x][y].setText(counts[x][y] + "");
                             buttons[x][y].setEnabled(false);
+                            checkWin();
                         }
                     }
                 }
